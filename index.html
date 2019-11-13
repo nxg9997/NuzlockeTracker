@@ -115,13 +115,13 @@
         methods: {
             addPokemon: addPokemon,
             rosterClick: (entry) => {
-                //console.log(e);
+                ////console.log(e);
                 app.species = entry.species;
                 app.location = entry.location;
                 app.nickname = entry.nickname;
             },
             rosterDblClick: (entry) => {
-                console.log("double clicked " + entry.nickname);
+                //console.log("double clicked " + entry.nickname);
                 entry.alive = !entry.alive;
                 saveRosterAsCookie();
             },
@@ -148,7 +148,7 @@
     }
 
     function readCookie(){
-        console.log(document.cookie);
+        //console.log(document.cookie);
         let cookiesRaw = document.cookie.split(';');
         let cookies = [];
         for(let i = 0; i < cookiesRaw.length; i++){
@@ -157,12 +157,12 @@
                 value: JSON.parse(cookiesRaw[i].split('=')[1].toString().trim())
             };
             cookies.push(c);
-            console.log(c.key);
+            //console.log(c.key);
             if(c.key == "roster"){
                 app.roster = c.value;
             }
         }
-        console.log(cookies[0].value);
+        //console.log(cookies[0].value);
 
         //app.roster.push(cookies[1].value);
     }
@@ -203,7 +203,7 @@
     function validateRoute(route){
         for(let i = 0; i < app.roster.length; i++){
             if(app.roster[i].location == route){
-                console.log("route already exists");
+                //console.log("route already exists");
                 invalidLocation = true;
                 app.btnTooltip = "Route already used! This will overwrite the current Pokemon from this route."
                 break;
