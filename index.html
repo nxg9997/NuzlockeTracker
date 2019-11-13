@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Nuzlocke Tracker</title>
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="mdl-grid" id="app">
+        <div class="mdl-cell mdl-cell--12-col center-text">
+            <h1>{{title}}</h1>
+        </div>
+        <!--Actual Tracker-->
+        <div class="mdl-cell mdl-cell--12-col mdl-grid">
+            <!--Roster List-->
+            <div class="mdl-cell mdl-cell--6-col">
+                <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+                    <thead>
+                        <tr>
+                            <th class="mdl-data-table__cell--non-numeric">Location</th>
+                            <th class="mdl-data-table__cell--non-numeric">Pokemon</th>
+                            <th class="mdl-data-table__cell--non-numeric">Nickname</th>
+                            <th class="mdl-data-table__cell--non-numeric">Alive</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="pokemon in roster" v-on:click="rosterClick(pokemon)" v-on:dblclick="rosterDblClick(pokemon)" v-bind:class="{dead:!pokemon.alive}">
+                            <td class="mdl-data-table__cell--non-numeric">{{pokemon.location}}</td>
+                            <td class="mdl-data-table__cell--non-numeric">{{pokemon.species}}</td>
+                            <td class="mdl-data-table__cell--non-numeric">{{pokemon.nickname}}</td>
+                            <td class="mdl-data-table__cell--non-numeric">{{pokemon.alive}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!--Add To Roster-->
+            <div class="mdl-grid mdl-cell mdl-cell--6-col">
+                <div class="mdl-cell mdl-cell--12-col">
+                    <div class="mdl-cell mdl-cell--6-col remove-margin">
+                        <form action="#">
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label stretch-width">
+                                <input class="mdl-textfield__input" type="text" id="location-selector" v-model="location">
+                                <label class="mdl-textfield__label" for="location-selector">Location</label>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="mdl-layout-spacer"></div>
+                </div>
+                <div class="mdl-grid mdl-cell mdl-cell--12-col remove-padding">
+                    <div class="mdl-cell mdl-cell--6-col remove-margin">
+                        <form action="#">
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                <input class="mdl-textfield__input" type="text" id="species-selector" v-model="species">
+                                <label class="mdl-textfield__label" for="species-selector">Species</label>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="mdl-layout-spacer"></div>
+                    <div class="mdl-cell mdl-cell--6-col remove-margin">
+                        <form action="#">
+                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                <input class="mdl-textfield__input" type="text" id="nickname-selector" v-model="nickname">
+                                <label class="mdl-textfield__label" for="nickname-selector">Nickname</label>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="mdl-cell mdl-cell--2-col mdl-cell--center" id="add-button">
+                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" v-on:click="addPokemon">
+                        Add
+                    </button>
+                </div>
+                <div class="mdl-tooltip mdl-tooltip--right" data-mdl-for="add-button">
+                    {{btnTooltip}}
+                </div>
+                <div class="mdl-cell mdl-cell--2-col mdl-cell--center" id="add-button">
+                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" v-on:click="removePokemon">
+                        Remove
+                    </button>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+</body>
+<script>
+
+    var app = new Vue({
+        el: '#app',
+        data: {
+            test: "hi",
+            title: "Nuzlocke Tracker",
+            roster: [],
+            species: "",
+            nickname: "",
+            location: "",
+            invalidLocation: false,
+            btnTooltip: "Add Pokemon to Roster",
+            allData = {}
+        },
+        methods: {
+            addPokemon: addPokemon,
+            rosterClick: (entry) => {
+                //console.log(e);
+                app.species = entry.species;
+                app.location = entry.location;
+                app.nickname = entry.nickname;
+            },
+            rosterDblClick: (entry) => {
+                console.log("double clicked " + entry.nickname);
+                entry.alive = !entry.alive;
+                saveRosterAsCookie();
+            },
+            removePokemon: () => {
+                removePokemon(app.location);
+                saveRosterAsCookie();
+            }
+        },
+        watch: {
+            location: function(){validateRoute(this.location);}
+        }
+    });
+
+    readCookie();
+
+    function createCookie(){
+        document.cookie = "test=" + JSON.stringify({test:"json works"}) + "; expires=Thu, 18 Dec 2030 12:00:00 UTC";
+        document.cookie = "test2=" + JSON.stringify({
+                location: 'Route 1',
+                species: 'Pikachu',
+                nickname: 'ChuChu',
+                alive: true
+            }) + "; expires=Thu, 18 Dec 2030 12:00:00 UTC";
+    }
+
+    function readCookie(){
+        console.log(document.cookie);
+        let cookiesRaw = document.cookie.split(';');
+        let cookies = [];
+        for(let i = 0; i < cookiesRaw.length; i++){
+            let c = {
+                key: cookiesRaw[i].split('=')[0].trim(),
+                value: JSON.parse(cookiesRaw[i].split('=')[1].toString().trim())
+            };
+            cookies.push(c);
+            console.log(c.key);
+            if(c.key == "roster"){
+                app.roster = c.value;
+            }
+        }
+        console.log(cookies[0].value);
+
+        //app.roster.push(cookies[1].value);
+    }
+
+    function saveRosterAsCookie(){
+        document.cookie = "roster=" + JSON.stringify(app.roster) + "; expires=Thu, 18 Dec 2030 12:00:00 UTC";
+    }
+
+    function addPokemon(){
+        for(let i = 0; i < app.roster.length; i++){
+            if(app.roster[i].location == app.location){
+                app.roster[i].location = app.location;
+                app.roster[i].species = app.species;
+                app.roster[i].nickname = app.nickname;
+                app.roster[i].alive = true;
+                saveRosterAsCookie();
+                return;
+            }
+        }
+        app.roster.push({
+            location: app.location,
+            species: app.species,
+            nickname: app.nickname,
+            alive: true
+        });
+        saveRosterAsCookie();
+    }
+
+    function removePokemon(route){
+        for(let i = 0; i < app.roster.length; i++){
+            if(app.roster[i].location == route){
+                app.roster.splice(i,1);
+                break;
+            }
+        }
+    }
+
+    function validateRoute(route){
+        for(let i = 0; i < app.roster.length; i++){
+            if(app.roster[i].location == route){
+                console.log("route already exists");
+                invalidLocation = true;
+                app.btnTooltip = "Route already used! This will overwrite the current Pokemon from this route."
+                break;
+            }
+            invalidLocation = false;
+            app.btnTooltip = "Add Pokemon to Roster"
+        }
+    }
+
+</script>
+</html>
